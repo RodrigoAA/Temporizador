@@ -67,13 +67,12 @@ class Timer {
         this.closeNotificationBtn.addEventListener('click', () => this.hideNotification());
         this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
         
-        // Event listeners para navegación entre pestañas
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const targetTab = tab.dataset.tab;
-                this.switchTab(targetTab);
-            });
+            document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const targetTab = tab.dataset.tab;
+            this.switchTab(targetTab);
         });
+    });
         
         this.presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -678,7 +677,7 @@ class Timer {
         this.timerScreen.classList.remove('active');
         this.historyScreen.classList.add('active');
         this.currentScreen = 'history';
-        this.renderHistory(); // Actualizar el historial al mostrar la pantalla
+        this.renderHistory();
     }
 
     showTimer() {
