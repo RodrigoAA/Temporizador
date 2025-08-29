@@ -12,7 +12,6 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
-        this.history = [];      
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
@@ -48,6 +47,12 @@ class Timer {
         this.historyContainer = document.getElementById('historyContainer');
         this.historyEmpty = document.getElementById('historyEmpty');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        
+        // Elementos de navegación entre pantallas
+        this.timerScreen = document.getElementById('timerScreen');
+        this.historyScreen = document.getElementById('historyScreen');
+        this.showHistoryBtn = document.getElementById('showHistoryBtn');
+        this.backToTimerBtn = document.getElementById('backToTimerBtn');
     }
 
     setupEventListeners() {
@@ -57,6 +62,10 @@ class Timer {
         
         this.closeNotificationBtn.addEventListener('click', () => this.hideNotification());
         this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+        
+        // Event listeners para navegación entre pantallas
+        this.showHistoryBtn.addEventListener('click', () => this.showHistory());
+        this.backToTimerBtn.addEventListener('click', () => this.showTimer());
         
         this.presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
