@@ -55,7 +55,6 @@ class Timer {
         
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
 
-        // Asegurar que el contexto de audio pueda iniciarse por interacción del usuario
         const resumeAudio = () => {
             if (this.audioContext && this.audioContext.state === 'suspended') {
                 this.audioContext.resume();
@@ -95,7 +94,6 @@ class Timer {
     }
 
     loadAudio() {
-        // Fallback simple por si Web Audio no está disponible
         this.audio = new Audio();
         this.audio.src = 'data:audio/wav;base64,UklGRmYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='; // silencio mínimo
         this.audio.load();
@@ -110,73 +108,110 @@ class Timer {
         }
     }
 
+    // Beep de respaldo
     playVintageBeep() {
         if (!this.audioContext) {
-            // pequeño beep fallback
-            try {
-                const beep = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQCQAAAA');
-                beep.play();
-            } catch (e) {}
+            try { const beep = new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQCQAAAA'); beep.play(); } catch (e) {}
             return;
         }
         const ctx = this.audioContext;
         const now = ctx.currentTime;
-        const duration = 0.9;
-
-        // Ganancia con envolvente
+        const duration = 0.25;
         const gain = ctx.createGain();
         gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(0.6, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.5, now + 0.01);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-        // Oscilador principal (triángulo, tono bajo vintage)
-        const osc1 = ctx.createOscillator();
-        osc1.type = 'triangle';
-        osc1.frequency.setValueAtTime(420, now);
-
-        // Oscilador armónico breve para textura
-        const osc2 = ctx.createOscillator();
-        osc2.type = 'square';
-        osc2.frequency.setValueAtTime(840, now);
-
-        // LFO para vibrato
-        const lfo = ctx.createOscillator();
-        lfo.type = 'sine';
-        lfo.frequency.setValueAtTime(6, now);
-        const lfoGain = ctx.createGain();
-        lfoGain.gain.setValueAtTime(8, now); // ±8 Hz
-        lfo.connect(lfoGain);
-        lfoGain.connect(osc1.frequency);
-        lfoGain.connect(osc2.frequency);
-
-        // Pequeño ruido blanco corto para "click" retro
-        const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 0.08, ctx.sampleRate);
-        const data = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < data.length; i++) { data[i] = (Math.random() * 2 - 1) * 0.2; }
-        const noise = ctx.createBufferSource();
-        noise.buffer = noiseBuffer;
-        const noiseGain = ctx.createGain();
-        noiseGain.gain.setValueAtTime(0.25, now);
-        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
-
-        // Conexiones
-        osc1.connect(gain);
-        osc2.connect(gain);
-        noise.connect(noiseGain);
-        noiseGain.connect(gain);
+        const osc = ctx.createOscillator();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(660, now);
+        osc.connect(gain);
         gain.connect(ctx.destination);
+        osc.start(now);
+        osc.stop(now + duration);
+    }
 
-        // Iniciar
-        osc1.start(now);
-        osc2.start(now);
+    // Melodía polifónica retro
+    playVintageMelody() {
+        if (!this.audioContext) { this.playVintageBeep(); return; }
+        const ctx = this.audioContext;
+        const now = ctx.currentTime + 0.02;
+        const tempo = 120; // bpm
+        const q = 60 / tempo; // negra
+
+        // Utilidad para crear una voz con envolvente
+        const createVoice = (type, volume = 0.15) => {
+            const osc = ctx.createOscillator();
+            osc.type = type;
+            const gain = ctx.createGain();
+            gain.gain.value = 0.0;
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            return { osc, gain };
+        };
+
+        const note = (freq, start, len, voice) => {
+            const t0 = now + start;
+            const t1 = t0 + len;
+            voice.osc.frequency.setValueAtTime(freq, t0);
+            voice.gain.gain.cancelScheduledValues(t0);
+            voice.gain.gain.setValueAtTime(0.0001, t0);
+            voice.gain.gain.exponentialRampToValueAtTime(0.18, t0 + 0.02);
+            voice.gain.gain.exponentialRampToValueAtTime(0.001, t1 - 0.02);
+        };
+
+        // Frecuencias helper (escala C Eólio ~ C menor natural)
+        const FREQ = {
+            C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00, Ab4: 415.30, Bb4: 466.16,
+            C5: 523.25, D5: 587.33, Eb5: 622.25, F5: 698.46, G5: 783.99, Ab5: 830.61, Bb5: 932.33
+        };
+
+        // Voces: bajo, lead y acompañamiento (acordes)
+        const bass = createVoice('triangle');
+        const lead = createVoice('square');
+        const pad1 = createVoice('sawtooth');
+        const pad2 = createVoice('sawtooth');
+
+        bass.osc.start(now);
+        lead.osc.start(now);
+        pad1.osc.start(now);
+        pad2.osc.start(now);
+
+        // Patrón de 2 compases (8 negras) con acordes
+        // Compás 1: Cm (C Eb G)
+        note(FREQ.C4, 0*q, 2*q, bass);
+        note(FREQ.C5, 0*q, 1*q, lead);
+        note(FREQ.Eb5, 1*q, 1*q, lead);
+        note(FREQ.G5, 2*q, 1*q, lead);
+        note(FREQ.Eb5, 3*q, 1*q, lead);
+        // acorde sostenido con pad
+        note(FREQ.C4, 0*q, 4*q, pad1);
+        note(FREQ.Eb4, 0*q, 4*q, pad2);
+
+        // Compás 2: Ab (Ab C Eb)
+        note(FREQ.Ab4, 4*q, 2*q, bass);
+        note(FREQ.C5, 4*q, 1*q, lead);
+        note(FREQ.Eb5, 5*q, 1*q, lead);
+        note(FREQ.C5, 6*q, 1*q, lead);
+        note(FREQ.Ab4, 7*q, 1*q, lead);
+        note(FREQ.Ab4, 4*q, 4*q, pad1);
+        note(FREQ.C4, 4*q, 4*q, pad2);
+
+        // Suave vibrato al lead
+        const lfo = ctx.createOscillator();
+        const lfoGain = ctx.createGain();
+        lfo.type = 'sine';
+        lfo.frequency.setValueAtTime(5.5, now);
+        lfoGain.gain.setValueAtTime(7, now);
+        lfo.connect(lfoGain);
+        lfoGain.connect(lead.osc.frequency);
         lfo.start(now);
-        noise.start(now);
 
-        // Parar
-        osc1.stop(now + duration);
-        osc2.stop(now + duration * 0.7);
-        lfo.stop(now + duration);
-        noise.stop(now + 0.1);
+        const stopAt = now + 8*q + 0.1;
+        bass.osc.stop(stopAt);
+        lead.osc.stop(stopAt);
+        pad1.osc.stop(stopAt);
+        pad2.osc.stop(stopAt);
+        lfo.stop(stopAt);
     }
 
     setTimeFromSeconds(totalSeconds) {
@@ -252,10 +287,9 @@ class Timer {
         this.timerStatus.textContent = '¡Tiempo completado!';
         this.timerDisplay.classList.remove('active');
         
-        // Sonido vintage
-        this.playVintageBeep();
+        // Melodía polifónica vintage
+        this.playVintageMelody();
         
-        // Notificación visual
         this.showNotification();
         this.showBrowserNotification();
     }
@@ -280,8 +314,8 @@ class Timer {
         messageEl.className = `message message-${type}`;
         messageEl.textContent = message;
         messageEl.style.cssText = `
-            position: fixed; top: 20px; right: 20px; background: ${type === 'error' ? '#000' : '#000'}; color: #fff;
-            padding: 1rem 1.5rem; border: 2px solid #000; border-radius: 6px; box-shadow: 6px 6px 0 #000; z-index: 1001;
+            position: fixed; top: 20px; right: 20px; background: #173a22; color: #e8ffe8;
+            padding: 1rem 1.5rem; border: 2px solid #13361d; border-radius: 6px; box-shadow: 6px 6px 0 #3b2f2f; z-index: 1001;
         `;
         document.body.appendChild(messageEl);
         setTimeout(() => { document.body.removeChild(messageEl); }, 2200);
