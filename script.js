@@ -12,9 +12,12 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
+<<<<<<< HEAD
         
         this.sessionId = null;
         
+=======
+>>>>>>> ce3611b52de0b1a9464b92e6993de539b0926ac6
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
