@@ -12,6 +12,11 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
+        
+        // Variables para persistencia de sesión
+        this.sessionId = null;
+        this.lastSaveTime = null;
+        
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
@@ -96,6 +101,7 @@ class Timer {
 
         // Event listeners para persistencia de sesión
         window.addEventListener('beforeunload', () => {
+            console.log('Página cerrando, guardando sesión...');
             if (this.sessionStartTime) {
                 this.saveCurrentSession();
             }
@@ -174,7 +180,10 @@ class Timer {
 
     // Nuevas funciones para persistencia de sesión
     saveCurrentSession() {
-        if (!this.sessionStartTime) return; // No hay sesión activa
+        if (!this.sessionStartTime) {
+            console.log('No hay sesión activa para guardar');
+            return; // No hay sesión activa
+        }
 
         const sessionData = {
             sessionId: this.sessionId,
@@ -190,6 +199,7 @@ class Timer {
 
         try {
             localStorage.setItem('currentSession', JSON.stringify(sessionData));
+            console.log('Sesión guardada:', sessionData);
         } catch (e) {
             console.error('Error saving current session:', e);
         }
@@ -554,6 +564,7 @@ class Timer {
                 this.sessionStartTime = new Date();
                 this.sessionPausedTime = 0;
                 this.sessionId = Date.now(); // Generar ID único para la sesión
+                console.log('Nueva sesión iniciada con ID:', this.sessionId);
             }
             
             this.startTimerInterval();
@@ -689,6 +700,16 @@ class Timer {
 
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new Timer();
+    
+    // Verificar que localStorage esté disponible
+    try {
+        localStorage.setItem('test', 'test');
+        localStorage.removeItem('test');
+        console.log('localStorage está disponible');
+    } catch (e) {
+        console.error('localStorage no está disponible:', e);
+    }
+    
     if ('Notification' in window && Notification.permission === 'default') {
         setTimeout(() => { Notification.requestPermission(); }, 1500);
     }
