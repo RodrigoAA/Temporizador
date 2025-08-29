@@ -132,6 +132,16 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - **Limpieza completa**: Opción para eliminar todo el historial
 - **Pantalla dedicada**: Interfaz optimizada para revisar el historial
 
+### Estados de sesión
+- **🟢 Completado**: El temporizador llega a 0:00 naturalmente o se completa mientras la página está cerrada
+- **🔴 Cancelado**: El usuario presiona "Reiniciar" mientras el temporizador está corriendo activamente
+- **🟡 Interrumpido**: El usuario presiona "Reiniciar" mientras el temporizador está pausado
+
+#### Ejemplos de estados:
+- **Completado**: Configuras 25 min, inicias y dejas que termine → "Completado"
+- **Cancelado**: Configuras 25 min, inicias, a los 10 min presionas "Reiniciar" → "Cancelado"
+- **Interrumpido**: Configuras 25 min, inicias, pausas a los 10 min, reinicias a los 15 min → "Interrumpido"
+
 ## 🔊 Sistema de audio
 
 ### Melodía polifónica vintage
