@@ -406,40 +406,7 @@ header p {
 .btn-danger { background: #ffe5e2; }
 .btn-danger:hover:not(:disabled) { background: var(--accent-red); color: #fff2f2; }
 
-/* Sección de historial */
-.history-section {
-    border: 3px solid var(--border);
-    border-radius: 6px;
-    background: #f8f4e8; /* fondo ligeramente diferente */
-    padding: 1rem;
-}
 
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 2px solid var(--border);
-}
-
-.history-header h3 {
-    font-size: 1rem;
-    text-transform: uppercase;
-    margin: 0;
-}
-
-.history-header .btn {
-    padding: 0.4rem 0.8rem;
-    font-size: 0.8rem;
-    min-width: auto;
-}
-
-.history-container {
-    max-height: 300px;
-    overflow-y: auto;
-    text-align: left;
-}
 
 .history-empty {
     text-align: center;
@@ -531,21 +498,21 @@ header p {
 }
 
 /* Scrollbar personalizado para el historial */
-.history-container::-webkit-scrollbar {
+.history-list::-webkit-scrollbar {
     width: 8px;
 }
 
-.history-container::-webkit-scrollbar-track {
+.history-list::-webkit-scrollbar-track {
     background: #f1f1f1;
     border-radius: 4px;
 }
 
-.history-container::-webkit-scrollbar-thumb {
+.history-list::-webkit-scrollbar-thumb {
     background: var(--border);
     border-radius: 4px;
 }
 
-.history-container::-webkit-scrollbar-thumb:hover {
+.history-list::-webkit-scrollbar-thumb:hover {
     background: #555;
 }
 
@@ -604,11 +571,7 @@ header p {
     display: block;
 }
 
-/* Navegación entre pantallas */
-.navigation-section {
-    margin-top: 1rem;
-    text-align: center;
-}
+
 
 /* Pantalla del historial */
 .history-container-full {

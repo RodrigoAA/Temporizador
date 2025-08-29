@@ -101,9 +101,7 @@ class Timer {
             document.addEventListener(evt, resumeAudio, { once: true });
         });
 
-        // Event listeners para persistencia de sesión
         window.addEventListener('beforeunload', () => {
-            console.log('Página cerrando, guardando sesión...');
             if (this.sessionStartTime) {
                 this.saveCurrentSession();
             }
@@ -180,12 +178,8 @@ class Timer {
         }
     }
 
-    // Nuevas funciones para persistencia de sesión
     saveCurrentSession() {
-        if (!this.sessionStartTime) {
-            console.log('No hay sesión activa para guardar');
-            return; // No hay sesión activa
-        }
+        if (!this.sessionStartTime) return;
 
         const sessionData = {
             sessionId: this.sessionId,
@@ -201,7 +195,6 @@ class Timer {
 
         try {
             localStorage.setItem('currentSession', JSON.stringify(sessionData));
-            console.log('Sesión guardada:', sessionData);
         } catch (e) {
             console.error('Error saving current session:', e);
         }
@@ -296,7 +289,6 @@ class Timer {
         this.timerDisplay.classList.remove('active');
     }
 
-    // Función para limpiar sesión guardada
     clearSavedSession() {
         try {
             localStorage.removeItem('currentSession');
@@ -329,8 +321,6 @@ class Timer {
 
         this.saveHistory();
         this.renderHistory();
-        
-        // Limpiar sesión guardada
         this.clearSavedSession();
     }
 
@@ -561,17 +551,13 @@ class Timer {
             this.timerStatus.textContent = 'Temporizador en marcha...';
             this.timerDisplay.classList.add('active');
             
-            // Registrar inicio de sesión
             if (!this.sessionStartTime) {
                 this.sessionStartTime = new Date();
                 this.sessionPausedTime = 0;
-                this.sessionId = Date.now(); // Generar ID único para la sesión
-                console.log('Nueva sesión iniciada con ID:', this.sessionId);
+                this.sessionId = Date.now();
             }
             
             this.startTimerInterval();
-            
-            // Guardar sesión actual
             this.saveCurrentSession();
         }
     }
@@ -586,15 +572,12 @@ class Timer {
             this.timerDisplay.classList.remove('active');
             
             clearInterval(this.interval);
-            
-            // Guardar sesión actual
             this.saveCurrentSession();
         }
     }
 
     reset() {
         if (this.isRunning || this.isPaused) {
-            // Registrar sesión cancelada/interrumpida
             const status = this.isPaused ? 'interrupted' : 'cancelled';
             this.addToHistory(status);
         }
@@ -605,13 +588,10 @@ class Timer {
         this.timerStatus.textContent = 'Listo para comenzar';
         this.timerDisplay.classList.remove('active');
         
-        // Resetear variables de sesión
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
         this.sessionId = null;
-        
-        // Limpiar sesión guardada
         this.clearSavedSession();
     }
 
@@ -629,7 +609,6 @@ class Timer {
         this.timerStatus.textContent = '¡Tiempo completado!';
         this.timerDisplay.classList.remove('active');
         
-        // Registrar sesión completada
         this.addToHistory('completed');
         
         this.playVintageMelody();
@@ -637,13 +616,10 @@ class Timer {
         this.showNotification();
         this.showBrowserNotification();
         
-        // Resetear variables de sesión
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
         this.sessionId = null;
-        
-        // Limpiar sesión guardada
         this.clearSavedSession();
     }
 
@@ -685,15 +661,12 @@ class Timer {
         setTimeout(() => { document.body.removeChild(messageEl); }, 2200);
     }
 
-    // Navegación entre pestañas
     switchTab(tabName) {
-        // Actualizar pestañas
         document.querySelectorAll('.tab').forEach(tab => {
             tab.classList.remove('tab-active');
         });
         document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
 
-        // Actualizar pantallas
         if (tabName === 'timer') {
             this.showTimer();
         } else if (tabName === 'history') {
