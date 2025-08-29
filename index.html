@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Temporizador de Trabajo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Temporizador de Trabajo</h1>
+            <p>Gestiona tu tiempo de trabajo de manera eficiente</p>
+        </header>
+
+        <main class="timer-container">
+            <div class="timer-display">
+                <div class="time-display" id="timeDisplay">
+                    <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
+                </div>
+                <div class="timer-status" id="timerStatus">Listo para comenzar</div>
+            </div>
+
+            <div class="timer-controls">
+                <div class="time-input-section">
+                    <h3>Configurar Tiempo</h3>
+                    <div class="time-inputs">
+                        <div class="input-group">
+                            <label for="hoursInput">Horas</label>
+                            <input type="number" id="hoursInput" min="0" max="23" value="0">
+                        </div>
+                        <div class="input-group">
+                            <label for="minutesInput">Minutos</label>
+                            <input type="number" id="minutesInput" min="0" max="59" value="25">
+                        </div>
+                        <div class="input-group">
+                            <label for="secondsInput">Segundos</label>
+                            <input type="number" id="secondsInput" min="0" max="59" value="0">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preset-buttons">
+                    <button class="preset-btn" data-time="1500">25 min</button>
+                    <button class="preset-btn" data-time="3000">50 min</button>
+                    <button class="preset-btn" data-time="3600">1 hora</button>
+                    <button class="preset-btn" data-time="7200">2 horas</button>
+                </div>
+
+                <div class="control-buttons">
+                    <button id="startBtn" class="btn btn-primary">Iniciar</button>
+                    <button id="pauseBtn" class="btn btn-secondary" disabled>Pausar</button>
+                    <button id="resetBtn" class="btn btn-danger">Reiniciar</button>
+                </div>
+            </div>
+        </main>
+
+        <div class="notification" id="notification">
+            <div class="notification-content">
+                <h3>¡Tiempo completado!</h3>
+                <p>Tu sesión de trabajo ha terminado. ¡Buen trabajo!</p>
+                <button id="closeNotification" class="btn btn-primary">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
