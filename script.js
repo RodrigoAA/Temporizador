@@ -13,9 +13,7 @@ class Timer {
         this.sessionPausedTime = 0;
         this.isPaused = false;
         
-        // Variables para persistencia de sesión
         this.sessionId = null;
-        this.lastSaveTime = null;
         
         this.initializeElements();
         this.setupEventListeners();
@@ -687,14 +685,7 @@ class Timer {
 document.addEventListener('DOMContentLoaded', () => {
     const timer = new Timer();
     
-    // Verificar que localStorage esté disponible
-    try {
-        localStorage.setItem('test', 'test');
-        localStorage.removeItem('test');
-        console.log('localStorage está disponible');
-    } catch (e) {
-        console.error('localStorage no está disponible:', e);
-    }
+    
     
     if ('Notification' in window && Notification.permission === 'default') {
         setTimeout(() => { Notification.requestPermission(); }, 1500);

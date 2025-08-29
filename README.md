@@ -25,7 +25,7 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 2. **Tiempo personalizado**: Usa los campos de horas, minutos y segundos
 3. **Tiempos predefinidos**: Haz clic en los botones de acceso rápido
 4. **Controles**: Iniciar, pausar y reiniciar el temporizador
-5. **Navegación**: Usa "📋 Ver Historial" para acceder al historial
+5. **Navegación**: Usa las pestañas para cambiar entre temporizador e historial
 
 ### Pantalla de Historial
 - **Visualización completa**: Todas las sesiones en pantalla dedicada
