@@ -119,51 +119,6 @@ header p {
     gap: 1rem;
 }
 
-.session-config-section {
-    margin-bottom: 0.5rem;
-}
-
-.session-config-section h3 {
-    font-size: 1rem;
-    margin-bottom: 0.75rem;
-    text-transform: uppercase;
-}
-
-.session-input {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.session-input label {
-    font-size: 0.9rem;
-    font-weight: 700;
-}
-
-.session-input input {
-    width: 100%;
-    max-width: 300px;
-    padding: 0.6rem 0.8rem;
-    border: 2px solid var(--border);
-    border-radius: 4px;
-    background: #fff4cc; /* crema más cálido */
-    color: var(--ink);
-    font-size: 0.95rem;
-    text-align: center;
-    font-family: inherit;
-}
-
-.session-input input:focus {
-    outline: none;
-    box-shadow: inset 0 0 0 2px var(--border);
-}
-
-.session-input input::placeholder {
-    color: #666;
-    opacity: 0.7;
-}
-
 .time-input-section h3 {
     font-size: 1rem;
     margin-bottom: 0.75rem;
@@ -203,6 +158,46 @@ header p {
 .input-group input:focus {
     outline: none;
     box-shadow: inset 0 0 0 2px var(--border);
+}
+
+.session-input-section h3 {
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+}
+
+.session-input-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.session-input-group label {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.session-input-group input {
+    width: 200px;
+    padding: 0.6rem 0.5rem;
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    background: #fff4cc; /* crema más cálido */
+    color: var(--ink);
+    font-size: 1rem;
+    text-align: center;
+    font-family: inherit;
+}
+
+.session-input-group input:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px var(--border);
+}
+
+.session-input-group input::placeholder {
+    color: #666;
+    opacity: 0.7;
 }
 
 .preset-buttons {
@@ -317,5 +312,5 @@ header p {
     .time-display { font-size: 2.4rem; }
     .btn { width: 100%; max-width: 220px; }
     .input-group input { width: 96px; }
-    .session-input input { max-width: 250px; }
+    .session-input-group input { width: 180px; }
 }
