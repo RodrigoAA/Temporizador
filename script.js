@@ -21,7 +21,7 @@ class Timer {
         this.setupEventListeners();
         this.loadAudio();
         this.loadHistory();
-        this.restoreSession(); // Restaurar sesión al cargar
+        this.restoreSession();
     }
 
     initializeElements() {
@@ -44,17 +44,14 @@ class Timer {
         
         this.presetButtons = document.querySelectorAll('.preset-btn');
         
-        // Elementos del nombre de sesión
         this.sessionNameInput = document.getElementById('sessionNameInput');
         this.sessionNameDisplay = document.getElementById('sessionNameDisplay');
         this.completionMessage = document.getElementById('completionMessage');
         
-        // Elementos del historial
         this.historyContainer = document.getElementById('historyContainer');
         this.historyEmpty = document.getElementById('historyEmpty');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
         
-        // Elementos de navegación entre pantallas
         this.timerScreen = document.getElementById('timerScreen');
         this.historyScreen = document.getElementById('historyScreen');
     }
@@ -67,12 +64,12 @@ class Timer {
         this.closeNotificationBtn.addEventListener('click', () => this.hideNotification());
         this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
         
-            document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            const targetTab = tab.dataset.tab;
-            this.switchTab(targetTab);
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                this.switchTab(targetTab);
+            });
         });
-    });
         
         this.presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
