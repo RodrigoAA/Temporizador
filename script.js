@@ -4,13 +4,20 @@ class Timer {
         this.totalTime = 0;
         this.isRunning = false;
         this.interval = null;
-        this.audio = null; // Fallback HTMLAudioElement
-        this.audioContext = null; // Web Audio API
-        this.sessionName = ''; // Nombre de la sesión actual
+        this.audio = null;
+        this.audioContext = null;
+        this.sessionName = '';
+        
+        // Variables para el historial
+        this.sessionStartTime = null;
+        this.sessionPausedTime = 0;
+        this.isPaused = false;
+        this.history = [];
         
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
+        this.loadHistory();
     }
 
     initializeElements() {
@@ -37,6 +44,11 @@ class Timer {
         this.sessionNameInput = document.getElementById('sessionNameInput');
         this.sessionNameDisplay = document.getElementById('sessionNameDisplay');
         this.completionMessage = document.getElementById('completionMessage');
+        
+        // Elementos del historial
+        this.historyContainer = document.getElementById('historyContainer');
+        this.historyEmpty = document.getElementById('historyEmpty');
+        this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
     }
 
     setupEventListeners() {
@@ -45,6 +57,7 @@ class Timer {
         this.resetBtn.addEventListener('click', () => this.reset());
         
         this.closeNotificationBtn.addEventListener('click', () => this.hideNotification());
+        this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
         
         this.presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -57,7 +70,6 @@ class Timer {
         this.minutesInput.addEventListener('input', () => this.updateDisplay());
         this.secondsInput.addEventListener('input', () => this.updateDisplay());
         
-        // Event listener para el nombre de la sesión
         this.sessionNameInput.addEventListener('input', () => this.updateSessionName());
         
         this.setupInputValidation();
@@ -104,7 +116,7 @@ class Timer {
 
     loadAudio() {
         this.audio = new Audio();
-        this.audio.src = 'data:audio/wav;base64,UklGRmYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA='; // silencio mínimo
+        this.audio.src = 'data:audio/wav;base64,UklGRmYAAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQAAAAA=';
         this.audio.load();
 
         try {
@@ -114,6 +126,134 @@ class Timer {
             }
         } catch (e) {
             this.audioContext = null;
+        }
+    }
+
+    // Gestión del historial
+    loadHistory() {
+        try {
+            const saved = localStorage.getItem('timerHistory');
+            this.history = saved ? JSON.parse(saved) : [];
+            this.renderHistory();
+        } catch (e) {
+            this.history = [];
+            console.error('Error loading history:', e);
+        }
+    }
+
+    saveHistory() {
+        try {
+            localStorage.setItem('timerHistory', JSON.stringify(this.history));
+        } catch (e) {
+            console.error('Error saving history:', e);
+        }
+    }
+
+    addToHistory(status) {
+        if (!this.sessionStartTime) return;
+
+        const endTime = new Date();
+        const actualDuration = Math.floor((endTime - this.sessionStartTime - this.sessionPausedTime) / 1000);
+        
+        const session = {
+            id: Date.now(),
+            startTime: this.sessionStartTime.toISOString(),
+            sessionName: this.sessionName || 'Sesión sin nombre',
+            plannedDuration: this.totalTime,
+            actualDuration: actualDuration,
+            status: status
+        };
+
+        this.history.unshift(session); // Agregar al inicio
+        
+        // Mantener solo las últimas 50 sesiones
+        if (this.history.length > 50) {
+            this.history = this.history.slice(0, 50);
+        }
+
+        this.saveHistory();
+        this.renderHistory();
+    }
+
+    renderHistory() {
+        if (this.history.length === 0) {
+            this.historyEmpty.style.display = 'block';
+            this.historyContainer.innerHTML = '';
+            this.historyContainer.appendChild(this.historyEmpty);
+            return;
+        }
+
+        this.historyEmpty.style.display = 'none';
+        this.historyContainer.innerHTML = '';
+
+        this.history.forEach(session => {
+            const item = this.createHistoryItem(session);
+            this.historyContainer.appendChild(item);
+        });
+    }
+
+    createHistoryItem(session) {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+
+        const startDate = new Date(session.startTime);
+        const formattedDate = startDate.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const formattedTime = startDate.toLocaleTimeString('es-ES', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const plannedTime = this.formatTime(session.plannedDuration);
+        const actualTime = this.formatTime(session.actualDuration);
+
+        const statusText = {
+            'completed': 'Completado',
+            'cancelled': 'Cancelado',
+            'interrupted': 'Interrumpido'
+        };
+
+        item.innerHTML = `
+            <div class="history-item-header">
+                <div class="history-item-name">${session.sessionName}</div>
+                <div class="history-item-date">${formattedDate} ${formattedTime}</div>
+            </div>
+            <div class="history-item-details">
+                <div class="history-item-detail">
+                    <span class="history-item-detail-label">Planeado:</span>
+                    <span class="history-item-detail-value">${plannedTime}</span>
+                </div>
+                <div class="history-item-detail">
+                    <span class="history-item-detail-label">Real:</span>
+                    <span class="history-item-detail-value">${actualTime}</span>
+                </div>
+            </div>
+            <div class="history-item-status ${session.status}">${statusText[session.status]}</div>
+        `;
+
+        return item;
+    }
+
+    formatTime(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        
+        if (hours > 0) {
+            return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else {
+            return `${minutes}:${secs.toString().padStart(2, '0')}`;
+        }
+    }
+
+    clearHistory() {
+        if (confirm('¿Estás seguro de que quieres limpiar todo el historial?')) {
+            this.history = [];
+            this.saveHistory();
+            this.renderHistory();
         }
     }
 
@@ -144,10 +284,9 @@ class Timer {
         if (!this.audioContext) { this.playVintageBeep(); return; }
         const ctx = this.audioContext;
         const now = ctx.currentTime + 0.02;
-        const tempo = 120; // bpm
-        const q = 60 / tempo; // negra
+        const tempo = 120;
+        const q = 60 / tempo;
 
-        // Utilidad para crear una voz con envolvente
         const createVoice = (type, volume = 0.15) => {
             const osc = ctx.createOscillator();
             osc.type = type;
@@ -168,13 +307,11 @@ class Timer {
             voice.gain.gain.exponentialRampToValueAtTime(0.001, t1 - 0.02);
         };
 
-        // Frecuencias helper (escala C Eólio ~ C menor natural)
         const FREQ = {
             C4: 261.63, D4: 293.66, Eb4: 311.13, F4: 349.23, G4: 392.00, Ab4: 415.30, Bb4: 466.16,
             C5: 523.25, D5: 587.33, Eb5: 622.25, F5: 698.46, G5: 783.99, Ab5: 830.61, Bb5: 932.33
         };
 
-        // Voces: bajo, lead y acompañamiento (acordes)
         const bass = createVoice('triangle');
         const lead = createVoice('square');
         const pad1 = createVoice('sawtooth');
@@ -185,18 +322,14 @@ class Timer {
         pad1.osc.start(now);
         pad2.osc.start(now);
 
-        // Patrón de 2 compases (8 negras) con acordes
-        // Compás 1: Cm (C Eb G)
         note(FREQ.C4, 0*q, 2*q, bass);
         note(FREQ.C5, 0*q, 1*q, lead);
         note(FREQ.Eb5, 1*q, 1*q, lead);
         note(FREQ.G5, 2*q, 1*q, lead);
         note(FREQ.Eb5, 3*q, 1*q, lead);
-        // acorde sostenido con pad
         note(FREQ.C4, 0*q, 4*q, pad1);
         note(FREQ.Eb4, 0*q, 4*q, pad2);
 
-        // Compás 2: Ab (Ab C Eb)
         note(FREQ.Ab4, 4*q, 2*q, bass);
         note(FREQ.C5, 4*q, 1*q, lead);
         note(FREQ.Eb5, 5*q, 1*q, lead);
@@ -205,7 +338,6 @@ class Timer {
         note(FREQ.Ab4, 4*q, 4*q, pad1);
         note(FREQ.C4, 4*q, 4*q, pad2);
 
-        // Suave vibrato al lead
         const lfo = ctx.createOscillator();
         const lfoGain = ctx.createGain();
         lfo.type = 'sine';
@@ -268,6 +400,13 @@ class Timer {
             this.pauseBtn.disabled = false;
             this.timerStatus.textContent = 'Temporizador en marcha...';
             this.timerDisplay.classList.add('active');
+            
+            // Registrar inicio de sesión
+            if (!this.sessionStartTime) {
+                this.sessionStartTime = new Date();
+                this.sessionPausedTime = 0;
+            }
+            
             this.interval = setInterval(() => {
                 this.timeLeft--;
                 this.updateTimerDisplay();
@@ -279,20 +418,33 @@ class Timer {
     pause() {
         if (this.isRunning) {
             this.isRunning = false;
+            this.isPaused = true;
             this.startBtn.disabled = false;
             this.pauseBtn.disabled = true;
             this.timerStatus.textContent = 'Temporizador pausado';
             this.timerDisplay.classList.remove('active');
+            
             clearInterval(this.interval);
         }
     }
 
     reset() {
+        if (this.isRunning || this.isPaused) {
+            // Registrar sesión cancelada/interrumpida
+            const status = this.isPaused ? 'interrupted' : 'cancelled';
+            this.addToHistory(status);
+        }
+        
         this.pause();
         this.timeLeft = this.totalTime;
         this.updateTimerDisplay();
         this.timerStatus.textContent = 'Listo para comenzar';
         this.timerDisplay.classList.remove('active');
+        
+        // Resetear variables de sesión
+        this.sessionStartTime = null;
+        this.sessionPausedTime = 0;
+        this.isPaused = false;
     }
 
     updateTimerDisplay() {
@@ -309,14 +461,18 @@ class Timer {
         this.timerStatus.textContent = '¡Tiempo completado!';
         this.timerDisplay.classList.remove('active');
         
-        // Melodía polifónica vintage
+        // Registrar sesión completada
+        this.addToHistory('completed');
+        
         this.playVintageMelody();
-        
-        // Actualizar mensaje de notificación con el nombre de la sesión
         this.updateCompletionMessage();
-        
         this.showNotification();
         this.showBrowserNotification();
+        
+        // Resetear variables de sesión
+        this.sessionStartTime = null;
+        this.sessionPausedTime = 0;
+        this.isPaused = false;
     }
 
     updateCompletionMessage() {
