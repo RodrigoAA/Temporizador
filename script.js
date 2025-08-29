@@ -6,6 +6,7 @@ class Timer {
         this.interval = null;
         this.audio = null; // Fallback HTMLAudioElement
         this.audioContext = null; // Web Audio API
+        this.sessionName = ''; // Nombre de la sesión actual
         
         this.initializeElements();
         this.setupEventListeners();
@@ -31,6 +32,11 @@ class Timer {
         this.closeNotificationBtn = document.getElementById('closeNotification');
         
         this.presetButtons = document.querySelectorAll('.preset-btn');
+        
+        // Elementos del nombre de sesión
+        this.sessionNameInput = document.getElementById('sessionNameInput');
+        this.sessionNameDisplay = document.getElementById('sessionNameDisplay');
+        this.completionMessage = document.getElementById('completionMessage');
     }
 
     setupEventListeners() {
@@ -50,6 +56,9 @@ class Timer {
         this.hoursInput.addEventListener('input', () => this.updateDisplay());
         this.minutesInput.addEventListener('input', () => this.updateDisplay());
         this.secondsInput.addEventListener('input', () => this.updateDisplay());
+        
+        // Event listener para el nombre de la sesión
+        this.sessionNameInput.addEventListener('input', () => this.updateSessionName());
         
         this.setupInputValidation();
         
@@ -214,6 +223,19 @@ class Timer {
         lfo.stop(stopAt);
     }
 
+    updateSessionName() {
+        this.sessionName = this.sessionNameInput.value.trim();
+        this.updateSessionDisplay();
+    }
+
+    updateSessionDisplay() {
+        if (this.sessionName) {
+            this.sessionNameDisplay.textContent = `"${this.sessionName}"`;
+        } else {
+            this.sessionNameDisplay.textContent = '';
+        }
+    }
+
     setTimeFromSeconds(totalSeconds) {
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
@@ -290,8 +312,19 @@ class Timer {
         // Melodía polifónica vintage
         this.playVintageMelody();
         
+        // Actualizar mensaje de notificación con el nombre de la sesión
+        this.updateCompletionMessage();
+        
         this.showNotification();
         this.showBrowserNotification();
+    }
+
+    updateCompletionMessage() {
+        if (this.sessionName) {
+            this.completionMessage.textContent = `¡"${this.sessionName}" ha terminado! ¡Buen trabajo!`;
+        } else {
+            this.completionMessage.textContent = 'Tu sesión de trabajo ha terminado. ¡Buen trabajo!';
+        }
     }
 
     showNotification() { this.notification.classList.add('show'); }
@@ -299,9 +332,12 @@ class Timer {
 
     showBrowserNotification() {
         if ('Notification' in window && Notification.permission === 'granted') {
-            new Notification('Temporizador Completado', {
-                body: 'Tu sesión de trabajo ha terminado. ¡Buen trabajo!'
-            });
+            const title = 'Temporizador Completado';
+            const body = this.sessionName ? 
+                `¡"${this.sessionName}" ha terminado! ¡Buen trabajo!` : 
+                'Tu sesión de trabajo ha terminado. ¡Buen trabajo!';
+            
+            new Notification(title, { body });
         } else if ('Notification' in window && Notification.permission === 'default') {
             Notification.requestPermission().then(permission => {
                 if (permission === 'granted') { this.showBrowserNotification(); }

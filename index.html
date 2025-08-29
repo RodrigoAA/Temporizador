@@ -19,9 +19,18 @@
                     <span id="hours">00</span>:<span id="minutes">00</span>:<span id="seconds">00</span>
                 </div>
                 <div class="timer-status" id="timerStatus">Listo para comenzar</div>
+                <div class="session-name" id="sessionNameDisplay"></div>
             </div>
 
             <div class="timer-controls">
+                <div class="session-config-section">
+                    <h3>Configurar Sesión</h3>
+                    <div class="session-input">
+                        <label for="sessionNameInput">Nombre de la sesión</label>
+                        <input type="text" id="sessionNameInput" placeholder="Ej: Reunión de proyecto, Estudio, Ejercicio..." maxlength="50">
+                    </div>
+                </div>
+
                 <div class="time-input-section">
                     <h3>Configurar Tiempo</h3>
                     <div class="time-inputs">
@@ -58,7 +67,7 @@
         <div class="notification" id="notification">
             <div class="notification-content">
                 <h3>¡Tiempo completado!</h3>
-                <p>Tu sesión de trabajo ha terminado. ¡Buen trabajo!</p>
+                <p id="completionMessage">Tu sesión de trabajo ha terminado. ¡Buen trabajo!</p>
                 <button id="closeNotification" class="btn btn-primary">Cerrar</button>
             </div>
         </div>
