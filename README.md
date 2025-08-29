@@ -16,6 +16,7 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - **Navegación entre pantallas**: Interfaz limpia separando temporizador e historial
 - **Atajos de teclado**: Controla el temporizador sin usar el mouse
 - **Almacenamiento local**: Los datos persisten entre sesiones
+- **Persistencia de sesión**: El temporizador se guarda automáticamente y se restaura al volver
 
 ## 📱 Cómo usar
 
@@ -37,6 +38,12 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - **Iniciar**: Comienza la cuenta regresiva y registra el inicio
 - **Pausar**: Detiene temporalmente el temporizador
 - **Reiniciar**: Vuelve al tiempo original y registra la sesión como cancelada/interrumpida
+
+### Persistencia automática
+- **Guardado automático**: La sesión se guarda cada 30 segundos y al cerrar la página
+- **Restauración inteligente**: Al volver, el temporizador se restaura con el tiempo exacto
+- **Manejo de sesiones cerradas**: Si una sesión se completa mientras la página está cerrada, se registra automáticamente
+- **Límite temporal**: Las sesiones guardadas se limpian automáticamente después de 24 horas
 
 ### Atajos de teclado
 - **Espacio**: Iniciar/Pausar el temporizador
@@ -158,6 +165,12 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - Algunos navegadores en modo incógnito pueden bloquear localStorage
 - El historial se guarda automáticamente después de cada sesión
 
+### La sesión no se restaura
+- La persistencia de sesión requiere que el almacenamiento local esté habilitado
+- Las sesiones se limpian automáticamente después de 24 horas
+- Si cierras la página durante más de 24 horas, la sesión se perderá
+- Verifica que no estés en modo incógnito o privado
+
 ### Problemas en móviles
 - La aplicación es completamente responsiva
 - Los atajos de teclado no funcionan en dispositivos táctiles
@@ -165,6 +178,7 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 
 ## 📈 Mejoras futuras
 
+- [x] **Persistencia de sesión**: Implementado - El temporizador se guarda y restaura automáticamente
 - [ ] Exportar historial a CSV/PDF
 - [ ] Estadísticas de productividad
 - [ ] Múltiples temporizadores simultáneos

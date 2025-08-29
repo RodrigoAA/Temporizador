@@ -12,10 +12,16 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
+        
+        // Variables para persistencia de sesión
+        this.sessionId = null;
+        this.lastSaveTime = null;
+        
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
         this.loadHistory();
+        this.restoreSession(); // Restaurar sesión al cargar
     }
 
     initializeElements() {
@@ -92,6 +98,20 @@ class Timer {
         ['click','keydown','touchstart'].forEach(evt => {
             document.addEventListener(evt, resumeAudio, { once: true });
         });
+
+        // Event listeners para persistencia de sesión
+        window.addEventListener('beforeunload', () => {
+            if (this.sessionStartTime) {
+                this.saveCurrentSession();
+            }
+        });
+
+        // Guardar sesión periódicamente mientras está corriendo
+        setInterval(() => {
+            if (this.isRunning && this.sessionStartTime) {
+                this.saveCurrentSession();
+            }
+        }, 30000); // Guardar cada 30 segundos
     }
 
     setupInputValidation() {
@@ -157,6 +177,127 @@ class Timer {
         }
     }
 
+    // Nuevas funciones para persistencia de sesión
+    saveCurrentSession() {
+        if (!this.sessionStartTime) return; // No hay sesión activa
+
+        const sessionData = {
+            sessionId: this.sessionId,
+            sessionName: this.sessionName,
+            totalTime: this.totalTime,
+            timeLeft: this.timeLeft,
+            sessionStartTime: this.sessionStartTime.toISOString(),
+            sessionPausedTime: this.sessionPausedTime,
+            isRunning: this.isRunning,
+            isPaused: this.isPaused,
+            lastSaveTime: new Date().toISOString()
+        };
+
+        try {
+            localStorage.setItem('currentSession', JSON.stringify(sessionData));
+        } catch (e) {
+            console.error('Error saving current session:', e);
+        }
+    }
+
+    restoreSession() {
+        try {
+            const savedSession = localStorage.getItem('currentSession');
+            if (!savedSession) return;
+
+            const sessionData = JSON.parse(savedSession);
+            const lastSaveTime = new Date(sessionData.lastSaveTime);
+            const now = new Date();
+            const timeDiff = Math.floor((now - lastSaveTime) / 1000); // Diferencia en segundos
+
+            // Solo restaurar si la sesión se guardó hace menos de 24 horas
+            if (timeDiff > 24 * 60 * 60) {
+                localStorage.removeItem('currentSession');
+                return;
+            }
+
+            this.sessionId = sessionData.sessionId;
+            this.sessionName = sessionData.sessionName;
+            this.totalTime = sessionData.totalTime;
+            this.sessionStartTime = new Date(sessionData.sessionStartTime);
+            this.sessionPausedTime = sessionData.sessionPausedTime;
+
+            // Restaurar el tiempo restante considerando el tiempo transcurrido
+            if (sessionData.isRunning && !sessionData.isPaused) {
+                this.timeLeft = Math.max(0, sessionData.timeLeft - timeDiff);
+                if (this.timeLeft > 0) {
+                    this.isRunning = true;
+                    this.isPaused = false;
+                    this.startTimerInterval();
+                    this.updateUIForRunningState();
+                } else {
+                    // La sesión se completó mientras estaba cerrada
+                    this.completeSessionWhileClosed();
+                }
+            } else if (sessionData.isPaused) {
+                this.timeLeft = sessionData.timeLeft;
+                this.isRunning = false;
+                this.isPaused = true;
+                this.updateUIForPausedState();
+            }
+
+            // Restaurar la interfaz
+            this.setTimeFromSeconds(this.totalTime);
+            this.updateTimerDisplay();
+            this.updateSessionDisplay();
+            this.updateDisplay();
+
+            // Mostrar mensaje de sesión restaurada
+            if (this.timeLeft > 0) {
+                this.showMessage('Sesión anterior restaurada', 'info');
+            }
+
+        } catch (e) {
+            console.error('Error restoring session:', e);
+            localStorage.removeItem('currentSession');
+        }
+    }
+
+    completeSessionWhileClosed() {
+        // La sesión se completó mientras la página estaba cerrada
+        this.addToHistory('completed');
+        this.reset();
+        this.showMessage('Tu sesión anterior se completó mientras estabas ausente', 'info');
+    }
+
+    startTimerInterval() {
+        this.interval = setInterval(() => {
+            this.timeLeft--;
+            this.updateTimerDisplay();
+            if (this.timeLeft <= 0) { 
+                this.complete(); 
+            }
+        }, 1000);
+    }
+
+    updateUIForRunningState() {
+        this.startBtn.disabled = true;
+        this.pauseBtn.disabled = false;
+        this.timerStatus.textContent = 'Temporizador en marcha...';
+        this.timerDisplay.classList.add('active');
+    }
+
+    updateUIForPausedState() {
+        this.startBtn.disabled = false;
+        this.pauseBtn.disabled = true;
+        this.timerStatus.textContent = 'Temporizador pausado';
+        this.timerDisplay.classList.remove('active');
+    }
+
+    // Función para limpiar sesión guardada
+    clearSavedSession() {
+        try {
+            localStorage.removeItem('currentSession');
+        } catch (e) {
+            console.error('Error clearing saved session:', e);
+        }
+    }
+
     addToHistory(status) {
         if (!this.sessionStartTime) return;
 
@@ -164,7 +305,7 @@ class Timer {
         const actualDuration = Math.floor((endTime - this.sessionStartTime - this.sessionPausedTime) / 1000);
         
         const session = {
-            id: Date.now(),
+            id: this.sessionId || Date.now(),
             startTime: this.sessionStartTime.toISOString(),
             sessionName: this.sessionName || 'Sesión sin nombre',
             plannedDuration: this.totalTime,
@@ -181,6 +322,9 @@ class Timer {
 
         this.saveHistory();
         this.renderHistory();
+        
+        // Limpiar sesión guardada
+        this.clearSavedSession();
     }
 
     renderHistory() {
@@ -404,6 +548,7 @@ class Timer {
         }
         if (!this.isRunning) {
             this.isRunning = true;
+            this.isPaused = false;
             this.startBtn.disabled = true;
             this.pauseBtn.disabled = false;
             this.timerStatus.textContent = 'Temporizador en marcha...';
@@ -413,13 +558,13 @@ class Timer {
             if (!this.sessionStartTime) {
                 this.sessionStartTime = new Date();
                 this.sessionPausedTime = 0;
+                this.sessionId = Date.now(); // Generar ID único para la sesión
             }
             
-            this.interval = setInterval(() => {
-                this.timeLeft--;
-                this.updateTimerDisplay();
-                if (this.timeLeft <= 0) { this.complete(); }
-            }, 1000);
+            this.startTimerInterval();
+            
+            // Guardar sesión actual
+            this.saveCurrentSession();
         }
     }
 
@@ -433,6 +578,9 @@ class Timer {
             this.timerDisplay.classList.remove('active');
             
             clearInterval(this.interval);
+            
+            // Guardar sesión actual
+            this.saveCurrentSession();
         }
     }
 
@@ -453,6 +601,10 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
+        this.sessionId = null;
+        
+        // Limpiar sesión guardada
+        this.clearSavedSession();
     }
 
     updateTimerDisplay() {
@@ -481,6 +633,10 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
+        this.sessionId = null;
+        
+        // Limpiar sesión guardada
+        this.clearSavedSession();
     }
 
     updateCompletionMessage() {
