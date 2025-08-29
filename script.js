@@ -12,8 +12,7 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
-        this.history = [];
-        
+        this.history = [];      
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
@@ -511,6 +510,20 @@ class Timer {
         `;
         document.body.appendChild(messageEl);
         setTimeout(() => { document.body.removeChild(messageEl); }, 2200);
+    }
+
+    // Navegación entre pantallas
+    showHistory() {
+        this.timerScreen.classList.remove('active');
+        this.historyScreen.classList.add('active');
+        this.currentScreen = 'history';
+        this.renderHistory(); // Actualizar el historial al mostrar la pantalla
+    }
+
+    showTimer() {
+        this.historyScreen.classList.remove('active');
+        this.timerScreen.classList.add('active');
+        this.currentScreen = 'timer';
     }
 }
 
