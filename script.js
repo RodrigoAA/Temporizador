@@ -57,8 +57,6 @@ class Timer {
         // Elementos de navegación entre pantallas
         this.timerScreen = document.getElementById('timerScreen');
         this.historyScreen = document.getElementById('historyScreen');
-        this.showHistoryBtn = document.getElementById('showHistoryBtn');
-        this.backToTimerBtn = document.getElementById('backToTimerBtn');
     }
 
     setupEventListeners() {
@@ -69,9 +67,13 @@ class Timer {
         this.closeNotificationBtn.addEventListener('click', () => this.hideNotification());
         this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
         
-        // Event listeners para navegación entre pantallas
-        this.showHistoryBtn.addEventListener('click', () => this.showHistory());
-        this.backToTimerBtn.addEventListener('click', () => this.showTimer());
+        // Event listeners para navegación entre pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                const targetTab = tab.dataset.tab;
+                this.switchTab(targetTab);
+            });
+        });
         
         this.presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -683,7 +685,22 @@ class Timer {
         setTimeout(() => { document.body.removeChild(messageEl); }, 2200);
     }
 
-    // Navegación entre pantallas
+    // Navegación entre pestañas
+    switchTab(tabName) {
+        // Actualizar pestañas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.classList.remove('tab-active');
+        });
+        document.querySelector(`[data-tab="${tabName}"]`).classList.add('tab-active');
+
+        // Actualizar pantallas
+        if (tabName === 'timer') {
+            this.showTimer();
+        } else if (tabName === 'history') {
+            this.showHistory();
+        }
+    }
+
     showHistory() {
         this.timerScreen.classList.remove('active');
         this.historyScreen.classList.add('active');

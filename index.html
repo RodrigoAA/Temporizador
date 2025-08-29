@@ -13,6 +13,20 @@
             <p>Gestiona tu tiempo de trabajo de manera eficiente</p>
         </header>
 
+        <!-- Sistema de Pestañas Vintage -->
+        <div class="tab-system">
+            <div class="tab-container">
+                <div class="tab tab-active" data-tab="timer">
+                    <div class="tab-hole"></div>
+                    <span>⏰ Temporizador</span>
+                </div>
+                <div class="tab" data-tab="history">
+                    <div class="tab-hole"></div>
+                    <span>📋 Historial</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Pantalla Principal del Temporizador -->
         <div id="timerScreen" class="screen active">
             <main class="timer-container">
@@ -65,12 +79,7 @@
                     </div>
                 </div>
 
-                <!-- Botón para ir al historial -->
-                <div class="navigation-section">
-                    <button id="showHistoryBtn" class="btn btn-secondary">
-                        📋 Ver Historial
-                    </button>
-                </div>
+
             </main>
         </div>
 
@@ -81,7 +90,6 @@
                     <h3>Historial de Sesiones</h3>
                     <div class="history-controls">
                         <button id="clearHistoryBtn" class="btn btn-danger">Limpiar</button>
-                        <button id="backToTimerBtn" class="btn btn-primary">← Volver</button>
                     </div>
                 </div>
                 <div class="history-list" id="historyContainer">

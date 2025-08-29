@@ -13,7 +13,7 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - **Melodía polifónica vintage**: Sonido retro al completar el tiempo
 - **Notificaciones completas**: Alerta visual, sonora y del navegador
 - **Historial de sesiones**: Registro completo de todas tus sesiones en pantalla dedicada
-- **Navegación entre pantallas**: Interfaz limpia separando temporizador e historial
+- **Navegación por pestañas**: Sistema de pestañas estilo tarjetas perforadas vintage
 - **Atajos de teclado**: Controla el temporizador sin usar el mouse
 - **Almacenamiento local**: Los datos persisten entre sesiones
 - **Persistencia de sesión**: El temporizador se guarda automáticamente y se restaura al volver
@@ -32,7 +32,7 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - **Datos detallados**: Fecha, nombre, duración planeada vs real, estado final
 - **Estados de sesión**: Completado, Cancelado, Interrumpido
 - **Limpieza**: Botón para eliminar todo el historial
-- **Navegación**: Usa "← Volver" para regresar al temporizador
+- **Navegación**: Usa las pestañas para cambiar entre temporizador e historial
 
 ### Controles del temporizador
 - **Iniciar**: Comienza la cuenta regresiva y registra el inicio
@@ -114,7 +114,8 @@ Una aplicación web moderna con estética retro para gestionar tu tiempo de trab
 - **Campos de entrada**: Estilo consistente con bordes redondeados
 - **Scrollbar personalizado**: Diseño retro para el historial
 - **Badges de estado**: Colores diferenciados para cada estado de sesión
-- **Navegación intuitiva**: Transiciones suaves entre pantallas
+- **Pestañas vintage**: Estilo tarjetas perforadas con agujeros y efectos retro
+- **Navegación intuitiva**: Transiciones suaves entre pestañas
 
 ## 📊 Historial de sesiones
 
