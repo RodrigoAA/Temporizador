@@ -12,11 +12,6 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
-        this.history = [];
-        
-        // Variables para navegación entre pantallas
-        this.currentScreen = 'timer';
-        
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
