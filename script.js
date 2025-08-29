@@ -12,11 +12,6 @@ class Timer {
         this.sessionStartTime = null;
         this.sessionPausedTime = 0;
         this.isPaused = false;
-        
-        // Variables para persistencia de sesión
-        this.sessionId = null;
-        this.lastSaveTime = null;
-        
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
