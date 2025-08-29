@@ -14,6 +14,9 @@ class Timer {
         this.isPaused = false;
         this.history = [];
         
+        // Variables para navegación entre pantallas
+        this.currentScreen = 'timer';
+        
         this.initializeElements();
         this.setupEventListeners();
         this.loadAudio();
@@ -49,6 +52,12 @@ class Timer {
         this.historyContainer = document.getElementById('historyContainer');
         this.historyEmpty = document.getElementById('historyEmpty');
         this.clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        
+        // Elementos de navegación entre pantallas
+        this.timerScreen = document.getElementById('timerScreen');
+        this.historyScreen = document.getElementById('historyScreen');
+        this.showHistoryBtn = document.getElementById('showHistoryBtn');
+        this.backToTimerBtn = document.getElementById('backToTimerBtn');
     }
 
     setupEventListeners() {
@@ -58,6 +67,10 @@ class Timer {
         
         this.closeNotificationBtn.addEventListener('click', () => this.hideNotification());
         this.clearHistoryBtn.addEventListener('click', () => this.clearHistory());
+        
+        // Event listeners para navegación entre pantallas
+        this.showHistoryBtn.addEventListener('click', () => this.showHistory());
+        this.backToTimerBtn.addEventListener('click', () => this.showTimer());
         
         this.presetButtons.forEach(btn => {
             btn.addEventListener('click', () => {
@@ -511,6 +524,20 @@ class Timer {
         `;
         document.body.appendChild(messageEl);
         setTimeout(() => { document.body.removeChild(messageEl); }, 2200);
+    }
+
+    // Navegación entre pantallas
+    showHistory() {
+        this.timerScreen.classList.remove('active');
+        this.historyScreen.classList.add('active');
+        this.currentScreen = 'history';
+        this.renderHistory(); // Actualizar el historial al mostrar la pantalla
+    }
+
+    showTimer() {
+        this.historyScreen.classList.remove('active');
+        this.timerScreen.classList.add('active');
+        this.currentScreen = 'timer';
     }
 }
 
